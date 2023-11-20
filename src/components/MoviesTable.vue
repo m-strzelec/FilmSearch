@@ -1,8 +1,9 @@
 <template>
     <div>
-      <table class="table table-striped table-bordered mb-0">
-        <thead class="mdb-color white-text">
+      <table class="table table-hover table-striped table-bordered">
+        <thead>
           <tr class="text-center">
+            <th>#</th>
             <th>Title</th>
             <th>Production Year</th>
             <th>Cast</th>
@@ -10,15 +11,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="text-center" v-for="movie in movies" :key="movie.title">
+          <tr class="text-center" v-for="(movie, index) in movies" :key="movie.title">
+            <td>{{ index + 1 }}</td>
             <td>{{ movie.title }}</td>
             <td>{{ movie.year }}</td>
-            <td>{{ movie.cast.toString().split(",").join("\n") }}</td>
-            <td>{{ movie.genres.toString().split(",").join("\n") }}</td>
+            <td>{{ formatList(movie.cast) }}</td>
+            <td>{{ formatList(movie.genres) }}</td>
           </tr>
         </tbody>
       </table>
-      <button @click="showMore" class="btn btn-block mdb-color white-text mt-3">Show More</button>
+      <button @click="showMore" class="btn btn-info col-sm-12 mb-4 text-center">Show More</button>
     </div>
 </template>
   
@@ -31,6 +33,9 @@ export default {
     methods: {
         showMore() {
             this.$emit('show-more');
+        },
+        formatList(list) {
+            return list.join(', ');
         }
     }
 };
