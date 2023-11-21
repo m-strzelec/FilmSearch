@@ -31,42 +31,34 @@
 </template>
 
 <script>
-import { ref, defineComponent } from 'vue';
-
-export default defineComponent({
-	setup(props, { emit }) {
-		const titleQuery = ref('');
-		const yearFrom = ref(null);
-		const yearTo = ref(null);
-		const castQuery = ref('');
-
-		const emitSearch = () => {
-			emit('search', {
-				title: titleQuery.value,
-				yearFrom: yearFrom.value,
-				yearTo: yearTo.value,
-				cast: castQuery.value,
-			});
-		};
-
-		const clearSearch = () => {
-			titleQuery.value = '';
-			yearFrom.value = null;
-			yearTo.value = null;
-			castQuery.value = '';
-			emit('clear');
-		};
-
+export default {
+	data() {
 		return {
-			titleQuery,
-			yearFrom,
-			yearTo,
-			castQuery,
-			emitSearch,
-			clearSearch,
+			titleQuery: '',
+			yearFrom: null,
+			yearTo: null,
+			castQuery: ''
 		};
 	},
-});
+	methods: {
+		emitSearch() {
+			this.$emit('search', {
+				title: this.titleQuery,
+				yearFrom: this.yearFrom,
+				yearTo: this.yearTo,
+				cast: this.castQuery
+			});
+		},
+		clearSearch() {
+			this.$emit('clear', {
+				title: '',
+				yearFrom: null,
+				yearTo: null,
+				cast: ''
+			});
+		}
+	}
+};
 </script>
 
 <style scoped>
