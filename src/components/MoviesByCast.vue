@@ -1,11 +1,7 @@
 <template>
 	<div class="movie-list">
 		<ul class="list-group">
-			<li
-				v-for="movie in filteredMovies"
-				:key="movie.title"
-				class="list-group-item"
-			>
+			<li v-for="movie in filteredMovies" :key="movie.title" class="list-group-item">
 				{{ movie.title }}
 			</li>
 		</ul>
@@ -20,7 +16,9 @@ export default {
 	props: ['cast', 'movies'],
 	computed: {
 		filteredMovies() {
-			return _.filter(this.movies, (movie) => movie.cast.includes(this.cast));
+			return _.filter(this.movies, (movie) =>
+				movie.cast.includes(this.cast)
+			);
 		},
 	},
 };

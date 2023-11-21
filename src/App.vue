@@ -1,11 +1,8 @@
 <template>
 	<div id="app">
 		<h1>Movie Database</h1>
-		<search-component @search="handleSearch"></search-component>
-		<movies-table
-			:movies="displayedMovies"
-			@show-more="loadMoreMovies"
-		></movies-table>
+		<search-component @search="handleSearch" @clear="clearSearch"></search-component>
+		<movies-table :movies="displayedMovies" @show-more="loadMoreMovies"></movies-table>
 
 		<h2>Movies by genre</h2>
 		<select v-model="selectedGenre">
@@ -13,10 +10,7 @@
 				{{ genre }}
 			</option>
 		</select>
-		<movies-by-genre
-			:genre="selectedGenre"
-			:movies="moviesByGenre"
-		></movies-by-genre>
+		<movies-by-genre :genre="selectedGenre" :movies="moviesByGenre"></movies-by-genre>
 
 		<h2>Movies by cast</h2>
 		<select v-model="selectedCast">
@@ -24,10 +18,7 @@
 				{{ cast }}
 			</option>
 		</select>
-		<movies-by-cast
-			:cast="selectedCast"
-			:movies="moviesByCast"
-		></movies-by-cast>
+		<movies-by-cast :cast="selectedCast" :movies="moviesByCast"></movies-by-cast>
 	</div>
 </template>
 
@@ -56,15 +47,17 @@ export default {
 			selectedGenre: '',
 			selectedCast: '',
 			itemsPerPage: 10,
-			searchQuery: '',
+			searchCriteria: {
+				title: '',
+				yearFrom: null,
+				yearTo: null,
+				cast: ''
+			},
 			genres: [],
 			casts: [],
 		};
 	},
 	watch: {
-		searchQuery() {
-			this.filterMovies();
-		},
 		selectedGenre(newGenre) {
 			this.moviesByGenre = _.filter(this.allMovies, (movie) =>
 				movie.genres.includes(newGenre)
@@ -80,17 +73,31 @@ export default {
 		this.initializeMovieLists();
 	},
 	methods: {
-		handleSearch(query) {
-			this.searchQuery = query;
+		handleSearch(criteria) {
+			this.searchCriteria = criteria;
+			this.filterMovies();
 		},
 		filterMovies() {
-			if (this.searchQuery) {
-				this.displayedMovies = _.filter(this.allMovies, (movie) =>
-					movie.title.toLowerCase().includes(this.searchQuery.toLowerCase())
-				);
-			} else {
-				this.displayedMovies = this.allMovies.slice(0, this.itemsPerPage);
-			}
+			this.displayedMovies = _.chain(this.allMovies)
+				.filter(movie => {
+					return (
+						(!this.searchCriteria.title || _.includes(_.toLower(movie.title), _.toLower(this.searchCriteria.title))) &&
+						(!this.searchCriteria.yearFrom || movie.year >= this.searchCriteria.yearFrom) &&
+						(!this.searchCriteria.yearTo || movie.year <= this.searchCriteria.yearTo) &&
+						(!this.searchCriteria.cast || _.some(movie.cast, castMember => _.includes(_.toLower(castMember), _.toLower(this.searchCriteria.cast))))
+					);
+				})
+				.slice(0, this.itemsPerPage)
+				.value();
+		},
+		clearSearch() {
+			this.searchCriteria = {
+				title: '',
+				yearFrom: null,
+				yearTo: null,
+				cast: ''
+			};
+			this.filterMovies();
 		},
 		loadMoreMovies() {
 			let currentLength = this.displayedMovies.length;
