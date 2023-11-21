@@ -1,5 +1,8 @@
 <template>
 	<div>
+		<div class="filtered-results-count">
+			<p>Total number of results found: <strong>{{ totalFilteredMoviesCount }}</strong></p>
+		</div>
 		<table class="table table-hover table-striped table-bordered">
 			<thead>
 				<tr class="text-center">
@@ -20,7 +23,8 @@
 				</tr>
 			</tbody>
 		</table>
-		<button @click="showMore" class="btn btn-info col-sm-12 mb-4 text-center">Show More</button>
+		<button @click="showMore" v-show="!noMoreResults" class="btn btn-info col-sm-12 mb-2 text-center">Show More</button>
+		<button @click="showLess" v-show="someResults" class="btn btn-info col-sm-12 mb-4 text-center">Show Less</button>
 	</div>
 </template>
 
@@ -36,7 +40,9 @@ export default {
 	data() {
 		return {
 			displayedMovies: [],
-			itemsPerPage: 10
+			allFilteredMovies: [],
+			itemsPerPage: 10,
+			currentPage: 1
 		};
 	},
 	created() {
@@ -47,33 +53,52 @@ export default {
 			this.displayedMovies = newFilteredMovies;
 			this.$emit('filtered', newFilteredMovies);
 		},
+		searchCriteria: {
+			deep: true,
+			handler() {
+				this.currentPage = 1;
+			}
+		}
 	},
 	computed: {
+		totalFilteredMoviesCount() {
+			return this.allFilteredMovies.length;
+		},
 		filteredMovies() {
-			return _.chain(this.allMovies)
-			.filter(movie => {
+			this.applyFilters();
+			return this.allFilteredMovies.slice(0, this.itemsPerPage * this.currentPage);
+		},
+		noMoreResults() {
+			return this.allFilteredMovies.length <= this.itemsPerPage * this.currentPage;
+		},
+		someResults() {
+			return this.currentPage > 1;
+		}
+	},
+	methods: {
+		applyFilters() {
+			const castQueries = this.searchCriteria.cast.split(',').map(name => name.trim().toLowerCase());
+
+			this.allFilteredMovies = _.chain(this.allMovies)
+				.filter(movie => {
 					return (
 						(!this.searchCriteria.title || _.includes(_.toLower(movie.title), _.toLower(this.searchCriteria.title))) &&
 						(!this.searchCriteria.yearFrom || movie.year >= this.searchCriteria.yearFrom) &&
 						(!this.searchCriteria.yearTo || movie.year <= this.searchCriteria.yearTo) &&
-						(!this.searchCriteria.cast || _.some(movie.cast, castMember => _.includes(_.toLower(castMember), _.toLower(this.searchCriteria.cast))))
+						(!this.searchCriteria.cast || _.some(movie.cast, castMember => castQueries.some(query =>
+							_.includes(_.toLower(castMember), query))))
 					);
-				})
-				.slice(0, this.itemsPerPage)
-				.value();
+				}).value();
 		},
-	},
-	methods: {
 		showMore() {
-			let nextMovies = this.allMovies.slice(
-				this.displayedMovies.length,
-				this.displayedMovies.length + this.itemsPerPage
-			);
-			this.displayedMovies.push(...nextMovies);
+			this.currentPage++;
+		},
+		showLess() {
+			this.currentPage--;
 		},
 		formatList(list) {
 			return list.join(', ');
-		},
+		}
 	},
 };
 </script>

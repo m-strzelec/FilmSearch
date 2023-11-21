@@ -32,6 +32,7 @@
 
 <script>
 export default {
+	name: 'SearchComponent',
 	data() {
 		return {
 			titleQuery: '',
@@ -50,11 +51,15 @@ export default {
 			});
 		},
 		clearSearch() {
+			this.titleQuery = '';
+			this.yearFrom = null;
+			this.yearTo = null;
+			this.castQuery = '';
 			this.$emit('clear', {
-				title: '',
-				yearFrom: null,
-				yearTo: null,
-				cast: ''
+				title: this.titleQuery,
+				yearFrom: this.yearFrom,
+				yearTo: this.yearTo,
+				cast: this.castQuery
 			});
 		}
 	}
