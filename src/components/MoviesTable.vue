@@ -77,24 +77,38 @@ export default {
 	},
 	methods: {
 		applyFilters() {
-			const castQueries = this.searchCriteria.cast.split(',').map(name => name.trim().toLowerCase());
-
 			this.allFilteredMovies = _.chain(this.allMovies)
 				.filter(movie => {
-					return (
-						(!this.searchCriteria.title || _.includes(_.toLower(movie.title), _.toLower(this.searchCriteria.title))) &&
-						(!this.searchCriteria.yearFrom || movie.year >= this.searchCriteria.yearFrom) &&
-						(!this.searchCriteria.yearTo || movie.year <= this.searchCriteria.yearTo) &&
-						(!this.searchCriteria.cast || _.some(movie.cast, castMember => castQueries.some(query =>
-							_.includes(_.toLower(castMember), query))))
-					);
-				}).value();
+					// Title filter
+					const titleMatch = !this.searchCriteria.title ||
+						_.includes(_.toLower(movie.title), _.toLower(this.searchCriteria.title));
+					// Year filters
+					const yearFromMatch = !this.searchCriteria.yearFrom || movie.year >= this.searchCriteria.yearFrom;
+					const yearToMatch = !this.searchCriteria.yearTo || movie.year <= this.searchCriteria.yearTo;
+					// Cast filter
+					let castMatch = true;
+					if (this.searchCriteria.cast) {
+						const castQueries = _.map(_.split(this.searchCriteria.cast, ','), name => _.toLower(_.trim(name)));
+						if (this.searchCriteria.castSearchType === 'all') {
+							castMatch = _.every(castQueries, query =>
+								_.some(movie.cast, castMember => _.includes(_.toLower(castMember), query))
+							);
+						} else {
+							castMatch = _.some(movie.cast, castMember =>
+								_.some(castQueries, query => _.includes(_.toLower(castMember), query))
+							);
+						}
+					}
+					return titleMatch && yearFromMatch && yearToMatch && castMatch;
+				})
+				.value();
 		},
 		showMore() {
 			this.currentPage++;
 		},
 		showLess() {
 			this.currentPage--;
+			//this.currentPage = 1;
 		},
 		formatList(list) {
 			return list.join(', ');
@@ -104,5 +118,4 @@ export default {
 </script>
 
 <style scoped>
-/* Add your CSS styling here */
 </style>

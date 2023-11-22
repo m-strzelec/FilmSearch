@@ -1,29 +1,33 @@
 <template>
 	<div id="app">
-		<h1>Movies Database</h1>
-		<search-component @search="handleSearch" @clear="handleSearch"></search-component>
-		<movies-table :all-movies="allMovies" :search-criteria="searchCriteria"
-			@filtered="updateFilteredMovies"></movies-table>
+		<app-navbar></app-navbar>
+		<main>
+			<search-component @search="handleSearch" @clear="handleSearch"></search-component>
+			<movies-table :all-movies="allMovies" :search-criteria="searchCriteria"
+				@filtered="filteredMovies"></movies-table>
+			<h2>Movies By Genre</h2>
+			<select v-model="selectedGenre">
+				<option v-for="genre in genres" :value="genre" :key="genre">
+					{{ genre }}
+				</option>
+			</select>
+			<movies-by-genre :genre="selectedGenre" :movies="moviesByGenre"></movies-by-genre>
 
-		<h2>Movies by genre</h2>
-		<select v-model="selectedGenre">
-			<option v-for="genre in genres" :value="genre" :key="genre">
-				{{ genre }}
-			</option>
-		</select>
-		<movies-by-genre :genre="selectedGenre" :movies="moviesByGenre"></movies-by-genre>
-
-		<h2>Movies by cast</h2>
-		<select v-model="selectedCast">
-			<option v-for="cast in casts" :value="cast" :key="cast">
-				{{ cast }}
-			</option>
-		</select>
-		<movies-by-cast :cast="selectedCast" :movies="moviesByCast"></movies-by-cast>
+			<h2>Movies By Cast</h2>
+			<select v-model="selectedCast">
+				<option v-for="cast in casts" :value="cast" :key="cast">
+					{{ cast }}
+				</option>
+			</select>
+			<movies-by-cast :cast="selectedCast" :movies="moviesByCast"></movies-by-cast>
+		</main>
+		<app-footer></app-footer>
 	</div>
 </template>
 
 <script>
+import AppNavbar from './components/AppNavbar.vue';
+import AppFooter from './components/AppFooter.vue';
 import SearchComponent from './components/SearchComponent.vue';
 import MoviesTable from './components/MoviesTable.vue';
 import MoviesByGenre from './components/MoviesByGenre.vue';
@@ -33,19 +37,23 @@ import movies from './data/movies.json';
 export default {
 	name: 'App',
 	components: {
-		SearchComponent,
-		MoviesTable,
-		MoviesByGenre,
-		MoviesByCast,
-	},
+    AppNavbar,
+    AppFooter,
+    SearchComponent,
+    MoviesTable,
+    MoviesByGenre,
+    MoviesByCast,
+},
 	data() {
 		return {
 			allMovies: movies,
+			filteredM: [],
 			searchCriteria: {
 				title: '',
 				yearFrom: null,
 				yearTo: null,
-				cast: ''
+				cast: '',
+				castSearchType: 'any'
 			},
 		};
 	},
@@ -53,6 +61,9 @@ export default {
 		handleSearch(criteria) {
 			this.searchCriteria = criteria;
 		},
+		filteredMovies(filtered) {
+			this.filteredM = filtered;
+		}
 	},
 };
 </script>
@@ -63,10 +74,9 @@ export default {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	color: #2c3e50;
-	margin-top: 60px;
-	margin-bottom: 60px;
-	padding-left: 50px;
-	padding-right: 50px;
+	margin-top: 80px;
+	margin-left: 50px;
+	margin-right: 50px;
 }
 
 h1,

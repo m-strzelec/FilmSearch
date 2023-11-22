@@ -1,5 +1,5 @@
 <template>
-	<form class="text-center my-5" @submit.prevent="emitSearch" name="searchView">
+	<form class="my-5" @submit.prevent="emitSearch" name="searchView">
 		<div class="form-group my-3">
 			<label for="inputTitle">Title</label>
 			<input type="text" v-model="titleQuery" id="inputTitle" class="form-control"
@@ -19,9 +19,14 @@
 					placeholder="Natural number between 2000 and 2023" />
 			</div>
 		</div>
-		<div class="form-group my-3">
-			<label for="inputCast">Cast</label>
-			<input type="text" v-model="castQuery" id="inputCast" class="form-control" placeholder="First and last name" />
+		<div class="form-group input-center row my-3">
+			<label for="inputCast">Cast:</label>
+			<label class="col-sm-1"><input type="radio" v-model="castSearchType" value="all" /> All Actors</label>
+			<label class="col-sm-1"><input type="radio" v-model="castSearchType" value="any" /> Any Actor</label>
+			<div class="col-sm-10">
+				<input type="text" v-model="castQuery" id="inputCast" class="form-control"
+					placeholder="First and last name" />
+			</div>
 		</div>
 		<div class="form-group row mx-0">
 			<input type="submit" class="btn btn-info col-sm-12" value="Search" />
@@ -38,7 +43,8 @@ export default {
 			titleQuery: '',
 			yearFrom: null,
 			yearTo: null,
-			castQuery: ''
+			castQuery: '',
+			castSearchType: 'any'
 		};
 	},
 	methods: {
@@ -47,7 +53,8 @@ export default {
 				title: this.titleQuery,
 				yearFrom: this.yearFrom,
 				yearTo: this.yearTo,
-				cast: this.castQuery
+				cast: this.castQuery,
+				castSearchType: this.castSearchType
 			});
 		},
 		clearSearch() {
@@ -55,11 +62,13 @@ export default {
 			this.yearFrom = null;
 			this.yearTo = null;
 			this.castQuery = '';
+			this.castSearchType = 'any';
 			this.$emit('clear', {
 				title: this.titleQuery,
 				yearFrom: this.yearFrom,
 				yearTo: this.yearTo,
-				cast: this.castQuery
+				cast: this.castQuery,
+				castSearchType: this.castSearchType
 			});
 		}
 	}
@@ -67,5 +76,9 @@ export default {
 </script>
 
 <style scoped>
-/* Further customization if needed */
+.input-center {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
 </style>
