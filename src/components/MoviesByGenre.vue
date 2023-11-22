@@ -1,10 +1,19 @@
 <template>
-	<div class="movie-list">
-		<ul class="list-group">
-			<li v-for="movie in filteredMovies" :key="movie.title" class="list-group-item">
-				{{ movie.title }}
-			</li>
-		</ul>
+	<div class="form-group input-center row my-3">
+		<label for="inputFilterGenre">Genre:</label>
+		<div class="col-sm-12">
+			<input type="text" v-model="filterGenre" id="inputFilterGenre" class="form-control" placeholder="Move genre name" />
+		</div>
+	</div>
+	<div class="my-3">
+		<div v-for="(movies, genre) in filteredGenres" :key="genre" class="card">
+			<div class="card-header border-dark">{{ genre }}</div>
+			<ol class="list-group list-group-numbered">
+				<li v-for="(movie, index) in movies" :key="index" class="list-group-item list-group-item-action">
+					{{ movie.title }}
+				</li>
+			</ol>
+		</div>
 	</div>
 </template>
 
@@ -13,21 +22,43 @@ import _ from 'lodash';
 
 export default {
 	name: 'MoviesByGenre',
-	props: ['genre', 'movies'],
-	computed: {
-		filteredMovies() {
-			return _.filter(this.movies, (movie) =>
-				movie.genres.includes(this.genre)
-			);
-		},
+	props: {
+		movies: Array
 	},
+	data() {
+		return {
+			filterGenre: '',
+		};
+	},
+	computed: {
+		filteredGenres() {
+			const grouped = {};
+			this.movies.forEach(movie => {
+				movie.genres.forEach(genre => {
+					if (!grouped[genre]) {
+						grouped[genre] = [];
+					}
+					grouped[genre].push(movie);
+				});
+			});
+
+			const filteredGrouped = this.filterGenre
+				? _.pickBy(grouped, (movies, genre) =>
+					_.toLower(genre).includes(_.toLower(this.filterGenre))
+				)
+				: grouped;
+
+			return _(filteredGrouped)
+				.toPairs()
+				.orderBy([pair => pair[1].length, pair => pair[0]], ['desc', 'asc'])
+				.fromPairs()
+				.value();
+		}
+	}
 };
 </script>
 
-<style scoped>
-.movie-list {
-	margin-top: 20px;
-}
+<style scoped></style>
 
-/* Further customization if needed */
-</style>
+
+  

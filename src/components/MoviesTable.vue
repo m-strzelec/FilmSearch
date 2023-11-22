@@ -46,17 +46,20 @@ export default {
 		};
 	},
 	created() {
-		this.displayedMovies = this.allMovies.slice(0, this.itemsPerPage);
+		this.applyFilters();
 	},
 	watch: {
-		filteredMovies(newFilteredMovies) {
-			this.displayedMovies = newFilteredMovies;
-			this.$emit('filtered', newFilteredMovies);
-		},
 		searchCriteria: {
 			deep: true,
 			handler() {
 				this.currentPage = 1;
+				this.applyFilters();
+			}
+		},
+		currentPage: {
+			deep: true,
+			handler() {
+				this.applyFilters();
 			}
 		}
 	},
@@ -65,7 +68,6 @@ export default {
 			return this.allFilteredMovies.length;
 		},
 		filteredMovies() {
-			this.applyFilters();
 			return this.allFilteredMovies.slice(0, this.itemsPerPage * this.currentPage);
 		},
 		noMoreResults() {
@@ -102,6 +104,9 @@ export default {
 					return titleMatch && yearFromMatch && yearToMatch && castMatch;
 				})
 				.value();
+			
+			this.displayedMovies = this.allFilteredMovies.slice(0, this.itemsPerPage * this.currentPage);
+			this.$emit('filtered', this.displayedMovies);
 		},
 		showMore() {
 			this.currentPage++;

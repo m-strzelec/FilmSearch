@@ -6,20 +6,9 @@
 			<movies-table :all-movies="allMovies" :search-criteria="searchCriteria"
 				@filtered="filteredMovies"></movies-table>
 			<h2>Movies By Genre</h2>
-			<select v-model="selectedGenre">
-				<option v-for="genre in genres" :value="genre" :key="genre">
-					{{ genre }}
-				</option>
-			</select>
-			<movies-by-genre :genre="selectedGenre" :movies="moviesByGenre"></movies-by-genre>
-
+			<movies-by-genre :movies="filteredM"></movies-by-genre>
 			<h2>Movies By Cast</h2>
-			<select v-model="selectedCast">
-				<option v-for="cast in casts" :value="cast" :key="cast">
-					{{ cast }}
-				</option>
-			</select>
-			<movies-by-cast :cast="selectedCast" :movies="moviesByCast"></movies-by-cast>
+			<movies-by-cast :movies="filteredM"></movies-by-cast>
 		</main>
 		<app-footer></app-footer>
 	</div>
@@ -85,6 +74,6 @@ h2 {
 }
 
 h2 {
-	padding-top: 10px;
+	padding-top: 20px;
 }
 </style>
